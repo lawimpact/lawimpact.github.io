@@ -131,7 +131,7 @@ body { color: var(--ink); font-family: var(--sans); -webkit-text-size-adjust: 10
 		<img class="cover-img" src="https://kdeok.com/api/uploads/1adba312-bdcf-4634-bebe-6abff6e7ebcc.png" alt="법조 MBTI 표지 그림" onerror="this.hidden=true">
 		<div class="card gate">
 			<p>Law-Impact 첫 번째 사전미션</p>
-			<b id="gate-date">10월 23일 공개</b>
+			<b id="gate-date">10월 23일(금) 저녁 6시 공개</b>
 			<p class="fine">공개 당일, 신청자에게 링크를 보내 드려요.</p>
 		</div>
 		<p class="foot">Law-Impact 사전미션 01</p>
@@ -238,7 +238,7 @@ body { color: var(--ink); font-family: var(--sans); -webkit-text-size-adjust: 10
 
 <script>
 (function () {
-	var OPEN_AT = new Date('2026-10-23T00:00:00+09:00');
+	var OPEN_AT = new Date('2026-10-23T18:00:00+09:00');
 	var KAKAO_CHAT = 'https://pf.kakao.com/_KVzFX/chat';
 	var SHARE_URL = 'https://lawimpact.github.io/lawbti/';
 	var RESULT_KEY = 'lb01-result';
@@ -553,7 +553,7 @@ body { color: var(--ink); font-family: var(--sans); -webkit-text-size-adjust: 10
 	if (q.has('result') && restore()) {
 		/* 저장된 결과 화면 */
 	} else if (Date.now() < OPEN_AT.getTime() && !q.has('preview')) {
-		$('gate-date').textContent = (OPEN_AT.getMonth() + 1) + '월 ' + OPEN_AT.getDate() + '일 공개';
+		$('gate-date').textContent = (OPEN_AT.getMonth() + 1) + '월 ' + OPEN_AT.getDate() + '일(금) 저녁 6시 공개';
 		show('s-gate');
 	} else {
 		cover();

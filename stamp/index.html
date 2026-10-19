@@ -257,7 +257,7 @@ body {
 	/* 기록 서버(구글 시트) 주소. 주소 뒤 ?k=토큰 으로 그 사람의 도장 현황을 불러온다. */
 	var API = 'https://script.google.com/macros/s/AKfycbxSHS3Khev5gl025Rn7GLHUCB9hvEHDc6EU_oZxKuU5kzEJg8i16CqKtTKYF1aQ2Q3BKw/exec';
 	/* 미션 공개일: 공개 전에는 이름을 가린다 */
-	var OPEN = { 1: '2026-10-23T00:00:00+09:00', 2: '2026-10-30T00:00:00+09:00', 3: '2026-11-06T00:00:00+09:00' };
+	var OPEN = { 1: '2026-10-23T18:00:00+09:00', 2: '2026-10-30T18:00:00+09:00', 3: '2026-11-06T18:00:00+09:00' };
 	var ls = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
 		set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 
@@ -271,7 +271,7 @@ body {
 		MISSIONS.forEach(function (m) {
 			var ok = done.indexOf(m.key) !== -1, isNew = ok && m.key === fresh;
 			var open = ok || Date.now() >= new Date(OPEN[m.key]).getTime();
-			var title = open ? m.name : 'TOP SECRET', desc = open ? m.desc : md(OPEN[m.key]) + ' 공개 예정';
+			var title = open ? m.name : 'TOP SECRET', desc = open ? m.desc : md(OPEN[m.key]) + '(금) 저녁 6시 공개';
 			html += '<article class="mission ' + m.cls + (ok ? ' done' : ' todo') + (isNew ? ' just' : '') + '" style="--ink-c:' + m.ink + '">' +
 				'<div class="num">0' + m.key + '</div>' +
 				'<div class="info"><p class="tag">' + m.tag + '</p><h2>' + esc(title) + '</h2><p>' + esc(desc) + '</p>' +
