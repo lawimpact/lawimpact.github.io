@@ -1075,6 +1075,9 @@ button[disabled]:hover { cursor: default; }
 .story-ov-s { margin: 0 0 6px; font-size: 13.5px; color: #c9bda6; line-height: 1.55; }
 .story-ov .go { box-sizing: border-box; display: block; text-decoration: none; margin: 10px 0 0; }
 .story-ov .go.ghost { color: #f1eadb; box-shadow: inset 0 0 0 1.5px #f1eadb; }
+
+/* 공개 전 잠금 버튼 */
+.passage .go.locked, .passage .go.locked:hover, .passage .go.locked:focus { background: var(--ink-soft); color: #fff8ee; box-shadow: none; cursor: not-allowed; transform: none; opacity: 1; }
 </style><script role="script" id="twine-user-script" type="text/twine-javascript">/* twine-user-script #1: "art.js" */
 /* 소품 그림: 글자가 정확해야 하는 그림은 SVG로 직접 그린다 */
 (function () {
@@ -1881,6 +1884,34 @@ setup.openResult = function () {
 	Engine.play('Cert');
 	return true;
 };
+/* ---------- 공개 전 잠금: 10/30(금) 18:00 전에는 파일을 열 수 없다 (운영진 테스트는 주소 끝에 ?preview) ---------- */
+setup.OPEN_AT = new Date('2026-10-30T18:00:00+09:00');
+setup.isLocked = function () {
+	return Date.now() < setup.OPEN_AT.getTime() && !/[?&]preview\b/.test(location.search);
+};
+$(document).on(':passagedisplay', function (ev) {
+	if (!ev.passage || ev.passage.title !== 'Title' || !setup.isLocked()) { return; }
+	var folder = document.querySelector('.passage .folder');
+	if (!folder) { return; }
+	var go = folder.querySelector('button.go[data-passage="Register"]');
+	if (go) {
+		var lock = document.createElement('button');
+		lock.type = 'button'; lock.className = 'go locked'; lock.disabled = true;
+		lock.textContent = '10월 30일(금) 저녁 6시 공개';
+		go.parentNode.replaceChild(lock, go);
+	}
+	var dds = folder.querySelectorAll('.folder-fields dd');
+	if (dds[2]) { dds[2].textContent = '공개 전'; }
+	var note = folder.querySelector('.folder-note');
+	if (note) { note.textContent = '두 번째 사전미션은 10월 30일(금) 저녁 6시에 열려요. Law-Impact 카카오톡 채널에서 공개 알림을 받아 보세요.'; }
+});
+/* 잠금 중에 다른 장면으로 넘어가려 하면 첫 화면으로 */
+$(document).on(':passagestart', function (ev) {
+	if (setup.isLocked() && ev.passage && ev.passage.title !== 'Title' && ev.passage.title !== 'Cert') {
+		setTimeout(function () { Engine.play('Title'); }, 0);
+	}
+});
+
 /* 첫 화면에 '내 결과 다시 보기' 버튼, 주소에 ?result 가 있으면 바로 결과 화면 */
 $(document).on(':passagedisplay', function (ev) {
 	if (!ev.passage || ev.passage.title !== 'Title') { return; }
