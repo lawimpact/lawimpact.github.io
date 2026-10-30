@@ -2147,7 +2147,8 @@ setup.CERT_URL = 'https://lawimpact.github.io/cert/';
 setup.certLink = function () {
 	var v = State.variables;
 	return setup.CERT_URL + '?m=2&n=' + encodeURIComponent(v.name) + '&s=' + encodeURIComponent(v.school) +
-		'&c=' + encodeURIComponent(v.code) + '&t=' + encodeURIComponent(setup.TYPES[v.type].name);
+		'&c=' + encodeURIComponent(v.code) + '&t=' + encodeURIComponent(setup.TYPES[v.type].name) +
+		(/[?&]preview\b/.test(location.search) ? '&test=1' : '');  /* 운영진 테스트: 도장은 찍히지만 구글 시트에는 안 남는다 */
 };
 $(document).on(':passagedisplay', function () {
 	var a = document.getElementById('cert-btn');

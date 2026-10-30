@@ -301,7 +301,12 @@ body {
 	var q = new URLSearchParams(location.search);
 	var token = q.get('k') || ls.get('li-token');
 	var fresh = Number(q.get('new') || 0);
-	if (token && API.indexOf('http') === 0) {
+	if (q.get('test') === '1') {
+		/* 운영진 테스트: 이 기기에만 저장된 테스트 도장 (구글 시트와 무관) */
+		var T = {}; try { T = JSON.parse(ls.get('li-test') || '{}'); } catch (e) { T = {}; }
+		notice('운영진 테스트 화면이에요. 이 도장은 이 기기에만 있고 구글 시트에는 기록되지 않아요.');
+		render({ name: T.name || '-', school: T.school || '-', done: T.done || [], when: T.when || {} }, fresh);
+	} else if (token && API.indexOf('http') === 0) {
 		document.getElementById('missions').innerHTML = '<p class="loading">도장 카드를 불러오는 중…</p>';
 		fetch(API + '?k=' + encodeURIComponent(token))
 			.then(function (r) { return r.json(); })

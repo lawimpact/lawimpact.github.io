@@ -76,6 +76,7 @@ label.field { display: block; font-weight: 900; font-size: 16px; margin: 0 0 8px
 .empty p { margin: 0 0 6px; line-height: 1.6; }
 .foot { text-align: center; font-size: 12px; color: #3f4a52; margin-top: 18px; }
 [hidden] { display: none !important; }
+.test-banner { margin: 0 0 12px; padding: 10px 14px; border-radius: 10px; background: #fff3c4; color: #5a4300; font-size: 13.5px; font-weight: 700; line-height: 1.5; text-align: center; }
 </style>
 </head>
 <body>
@@ -145,6 +146,13 @@ label.field { display: block; font-weight: 900; font-size: 16px; margin: 0 0 8px
 		if (ls.get('li-token')) { $('card-link').hidden = false; $('card-link').href = '../stamp/?k=' + encodeURIComponent(ls.get('li-token')); }
 		return;
 	}
+	/* 운영진 테스트(?test=1): 화면은 똑같이, 기록 서버(구글 시트)에는 보내지 않는다 */
+	var TEST = q.get('test') === '1';
+	if (TEST) {
+		var tb = document.createElement('p'); tb.className = 'test-banner';
+		tb.textContent = '운영진 테스트 · 도장은 이 기기에만 찍히고 구글 시트에는 기록되지 않아요';
+		$('form-view').insertBefore(tb, $('form-view').firstChild);
+	}
 	$('form-view').hidden = false;
 	$('v-num').textContent = '0' + m; $('v-num').className = 'num m' + m;
 	$('v-tag').textContent = 'MISSION 0' + m;
@@ -170,6 +178,14 @@ label.field { display: block; font-weight: 900; font-size: 16px; margin: 0 0 8px
 		if (API.indexOf('http') !== 0) { showErr('인증 서버를 준비 중이에요. 아래 카톡 채널로 보내 주세요.'); return; }
 		showErr('');
 		var btn = $('go'); btn.disabled = true; btn.textContent = '도장 찍는 중…';
+		if (TEST) {
+			var T = {}; try { T = JSON.parse(ls.get('li-test') || '{}'); } catch (e2) { T = {}; }
+			T.name = name; T.school = school; T.done = (T.done || []).filter(function (x) { return x !== m; }).concat([m]);
+			var d0 = new Date(); T.when = T.when || {}; T.when[m] = (d0.getMonth() + 1) + '.' + d0.getDate();
+			ls.set('li-test', JSON.stringify(T));
+			setTimeout(function () { location.href = '../stamp/?test=1&new=' + m; }, 500);
+			return;
+		}
 		fetch(API, {
 			method: 'POST',
 			headers: { 'Content-Type': 'text/plain;charset=utf-8' },
