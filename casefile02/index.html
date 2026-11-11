@@ -1908,6 +1908,8 @@ button { font-family: inherit; color: inherit; }
 	'use strict';
 	var CF = window.CF, BG = window.BG, SFX = window.SFX || { play: function () {}, mood: function () {}, toggle: function () { return false; }, muted: function () { return true; }, unlock: function () {} };
 	var OPEN_AT = new Date('2026-11-06T18:00:00+09:00').getTime();
+	/* 사전미션 마감: 11/13(금) 23:59까지. 그 뒤로는 새로 시작할 수 없다 (이어 보기·결과·인증은 그대로, 운영진 테스트는 예외) */
+	var CLOSE_AT = new Date('2026-11-14T00:00:00+09:00').getTime();
 	var CERT_URL = 'https://lawimpact.github.io/cert/';
 	/* 운영진 테스트판 결과 화면의 피드백 구글 폼 주소 (비어 있으면 버튼을 숨긴다) */
 	var FEEDBACK_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdQC8j4RaVvwUT9I8-5yIljqmjfXfECBKLJNzib4a-wpujTTg/viewform';
@@ -2765,6 +2767,7 @@ button { font-family: inherit; color: inherit; }
 		$('#copy-btn', sc).addEventListener('click', function () {
 			copy(staff ? '[운영진 테스트] CASE FILE 02 완료\n이름: ' + R.name + ' / 유형: ' + T.name + ' / 이의 있음 ' + (R.hits || 0) + '/2 / ' + mins + '분' : '[Law-Impact 사전미션] CASE FILE 02 완료\n이름: ' + R.name + ' / 학교: ' + R.school + '\n인증코드: ' + R.code + ' / 유형: ' + T.name + '\n' + GAME_URL).then(function () { toast('복사했어요'); });
 		});
+		if (isClosed()) { $('#again-btn', sc).style.display = 'none'; }
 		$('#again-btn', sc).addEventListener('click', function () {
 			/* 한 번 더 눌러야 다시 시작 (confirm 창이 막힌 환경도 있어서) */
 			if (!this.dataset.sure) { this.dataset.sure = '1'; this.textContent = '한 번 더 누르면 처음부터'; toast('인증코드는 그대로 남아요'); return; }
@@ -2832,12 +2835,15 @@ button { font-family: inherit; color: inherit; }
 		setBg('night'); SFX.mood('dread');
 		var locked = !preview && Date.now() < OPEN_AT;
 		var hasSave = !!ls.get(SAVE_KEY), hasResult = !!ls.get(RESULT_KEY);
+		var closed = isClosed();
 		var sc = el('div', 'screen cover',
 			'<div class="k">CASE FILE 02 · 라파고 추리반</div><h1>조작된<br>영상</h1><div class="slash"></div>' +
 			'<p>조정은 끝났다. 돈도 돌아왔다.<br>그런데 어떤 세계에서는, 그걸로 끝나지 않았다.</p>' +
 			'<div class="meta">' + (staff ? '<span class="stafftag">운영진 테스트</span>' : '<span>사전미션 03</span>') + '<span>약 15분</span><span>소리 ON 추천</span></div>' +
 			'<div class="btns">' +
 			(locked ? '<div class="locked">11월 6일(금) 저녁 6시 공개</div>' :
+				closed ? (hasSave ? '<button type="button" class="btn red" id="c-resume">이어 보기</button>' :
+					'<div class="locked">사전미션 참여가 마감되었어요<br><small style="font-weight:400">11월 13일(금) 23:59 마감</small></div>') :
 				(hasSave ? '<button type="button" class="btn red" id="c-resume">이어 보기</button><button type="button" class="btn ghost" id="c-new">처음부터</button>' : '<button type="button" class="btn red" id="c-new">파일 열기</button>')) +
 			(hasResult ? '<button type="button" class="btn ghost" id="c-result">' + (staff ? '내 결과 다시 보기' : '내 결과 다시 보기 (인증)') + '</button>' : '') +
 			'</div>');
@@ -2847,7 +2853,9 @@ button { font-family: inherit; color: inherit; }
 		if ($('#c-resume', sc)) { $('#c-resume', sc).addEventListener('click', go(function () { if (!resume()) { newGame(false); } })); }
 		if ($('#c-result', sc)) { $('#c-result', sc).addEventListener('click', function () { SFX.unlock(); sc.remove(); showResult(false); }); }
 	}
+	function isClosed() { return !preview && Date.now() >= CLOSE_AT; }
 	function newGame(skipForm) {
+		if (isClosed()) { cover(); return; }
 		var NK = staff ? 'cf02-staff-name' : 'li-name';
 		var keepName = S.name || ls.get(NK) || '', keepSchool = S.school || ls.get('li-school') || '';
 		S = fresh(); report.att = null; xexam.cur = null; xexam.miss = {}; xexam.hint = {}; choice.tried = {};

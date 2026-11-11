@@ -239,6 +239,8 @@ body { color: var(--ink); font-family: var(--sans); -webkit-text-size-adjust: 10
 <script>
 (function () {
 	var OPEN_AT = new Date('2026-10-23T18:00:00+09:00');
+	/* 사전미션 마감: 11/13(금) 23:59까지. 그 뒤로는 새로 시작할 수 없고, 이미 한 사람은 결과·인증만 열린다 (?preview는 예외) */
+	var CLOSE_AT = new Date('2026-11-14T00:00:00+09:00');
 	var KAKAO_CHAT = 'https://pf.kakao.com/_KVzFX/chat';
 	var SHARE_URL = 'https://lawimpact.github.io/lawbti/';
 	var RESULT_KEY = 'lb01-result';
@@ -337,9 +339,20 @@ body { color: var(--ink); font-family: var(--sans); -webkit-text-size-adjust: 10
 		$('f-name').value = ls.get('li-name') || '';
 		$('f-school').value = ls.get('li-school') || '';
 		$('go-again').hidden = !ls.get(RESULT_KEY);
+		var closed = isClosed();
+		$('f-start').hidden = closed; $('go-start').hidden = closed;
+		var note = $('closed-note');
+		if (closed && !note) {
+			note = document.createElement('div'); note.id = 'closed-note'; note.className = 'card gate';
+			note.innerHTML = '<p>Law-Impact 첫 번째 사전미션</p><b>참여가 마감되었어요</b><p class="fine">11월 13일(금) 23:59에 마감했어요.' +
+				(ls.get(RESULT_KEY) ? '<br>아래 버튼으로 내 결과와 인증 화면을 다시 볼 수 있어요.' : '') + '</p>';
+			$('go-start').parentNode.insertBefore(note, $('go-start'));
+		}
 		show('s-cover');
 	}
+	function isClosed() { return Date.now() >= CLOSE_AT.getTime() && !new URLSearchParams(location.search).has('preview'); }
 	$('go-start').addEventListener('click', function () {
+		if (isClosed()) { cover(); return; }
 		var n = $('f-name').value.trim(), s = $('f-school').value.trim();
 		if (!n || !s) { $('f-err').textContent = '이름과 학교를 모두 적어 주세요.'; $('f-err').hidden = false; (!n ? $('f-name') : $('f-school')).focus(); return; }
 		$('f-err').hidden = true;

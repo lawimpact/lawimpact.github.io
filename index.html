@@ -1911,6 +1911,33 @@ $(document).on(':passagestart', function (ev) {
 		setTimeout(function () { Engine.play('Title'); }, 0);
 	}
 });
+/* ---------- 사전미션 마감: 11/13(금) 23:59까지. 그 뒤로는 새로 시작할 수 없다 (이미 끝낸 사람의 결과·인증은 그대로, ?preview는 예외) ---------- */
+setup.CLOSE_AT = new Date('2026-11-14T00:00:00+09:00');
+setup.isClosed = function () {
+	return Date.now() >= setup.CLOSE_AT.getTime() && !/[?&]preview\b/.test(location.search);
+};
+$(document).on(':passagedisplay', function (ev) {
+	if (!ev.passage || ev.passage.title !== 'Title' || !setup.isClosed()) { return; }
+	var folder = document.querySelector('.passage .folder');
+	if (!folder) { return; }
+	var go = folder.querySelector('button.go[data-passage="Register"]');
+	if (go) {
+		var lock = document.createElement('button');
+		lock.type = 'button'; lock.className = 'go locked'; lock.disabled = true;
+		lock.textContent = '사전미션 참여 마감';
+		go.parentNode.replaceChild(lock, go);
+	}
+	var dds = folder.querySelectorAll('.folder-fields dd');
+	if (dds[2]) { dds[2].textContent = '열람 종료'; }
+	var note = folder.querySelector('.folder-note');
+	if (note) { note.textContent = '두 번째 사전미션은 11월 13일(금) 23:59에 마감했어요.' + (setup.loadResult() ? ' 아래 버튼으로 내 결과와 인증 화면을 다시 볼 수 있어요.' : ''); }
+});
+/* 마감 뒤에는 신청서(새로 시작)로 못 들어간다. 이미 진행 중이던 장면은 그대로 둔다 */
+$(document).on(':passagestart', function (ev) {
+	if (setup.isClosed() && ev.passage && ev.passage.title === 'Register') {
+		setTimeout(function () { Engine.play('Title'); }, 0);
+	}
+});
 
 /* 첫 화면에 '내 결과 다시 보기' 버튼, 주소에 ?result 가 있으면 바로 결과 화면 */
 $(document).on(':passagedisplay', function (ev) {
